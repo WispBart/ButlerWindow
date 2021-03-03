@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
+#if UNITY_2020_2_OR_NEWER
 namespace ButlerWindow
 {
     public class ButlerWindow2 : EditorWindow
@@ -175,3 +176,4 @@ namespace ButlerWindow
         }
     }
 }
+#endif
