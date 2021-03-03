@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" schemaLocation="UnityEngine.UIElements file:///B:/Projects/Fontys/Blop/UIElementsSchema/UnityEngine.UIElements.xsd" editor-extension-mode="True">
+    <Style src="ButlerWindow.uss" />
+    <ui:Box name="Authentication" class="authentication">
+        <ui:Label text="Butler Authentication" class="auth-label auth-toolbar-label" />
+        <ui:VisualElement name="AuthenticationToolbar" class="auth-toolbar">
+            <ui:Button name="auth" text="Authenticate" />
+            <ui:Button name="update" text="Check for Updates" />
+            <ui:Button name="deAuth" text="Remove Authentication" />
+        </ui:VisualElement>
+    </ui:Box>
+    <ui:Box name="BuildSettings">
+        <uie:EnumField label="Build Target" name="buildTarget" />
+        <ui:VisualElement name="ProjectData" class="project-data">
+            <ui:TextField label="Account" name="account" class="project-data__textField" />
+            <ui:TextField label="Project" name="project" class="project-data__textField" />
+        </ui:VisualElement>
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="projectUrl" class="project-url" />
+        <ui:VisualElement name="channel" class="channel-toggle">
+            <ui:Toggle label="Override Channel" name="overrideChannel" />
+            <ui:TextField picking-mode="Ignore" label="Channel" name="channel" class="channel-toggle__textfield" />
+        </ui:VisualElement>
+        <ui:VisualElement name="channel" class="channel-toggle">
+            <ui:Toggle label="Override Version" name="overrideVersion" />
+            <ui:TextField picking-mode="Ignore" label="Version" name="version" class="channel-toggle__textfield" />
+        </ui:VisualElement>
+        <ui:TextField picking-mode="Ignore" name="buildPath" label="Build Path" />
+        <ui:Toggle label="Development Build" name="devBuild" />
+    </ui:Box>
+    <ui:VisualElement name="ShareButtons" class="sharebuttons" style="justify-content: flex-end;">
+        <ui:Button text="Build &amp; Share" display-tooltip-when-elided="true" name="build" />
+        <ui:Button text="Share" display-tooltip-when-elided="true" name="share" style="display: none;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="ConsoleContainer" class="console-container">
+        <ui:Label text="Butler Output" display-tooltip-when-elided="true" name="Label" />
+        <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="ButlerConsole" class="console-container">
+            <ui:Label display-tooltip-when-elided="true" name="console" focusable="true" class="console-text" style="border-left-color: rgba(159, 159, 159, 255); border-right-color: rgba(159, 159, 159, 255); border-top-color: rgba(159, 159, 159, 255); border-bottom-color: rgba(159, 159, 159, 255);" />
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

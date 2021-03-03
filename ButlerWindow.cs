@@ -28,7 +28,7 @@ namespace ButlerWindow
         private Editor _settingsEditor;
         private ButlerSettings _settings => ButlerSettings.instance;
 
-        [MenuItem("Window/Upload to Itch.io")]
+        //[MenuItem("Window/Upload to Itch.io")]
         static void Open()
         {
             var window = GetWindow<ButlerWindow>(TITLE);
