@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Unity.Connect.Share.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace ButlerWindow
 
     public class ButlerWindow : EditorWindow
     {
-        public const string TITLE = "Upload to Itch.io";
+        public const string TITLE = "Upload to itch.io";
         private const string CONSOLE_TITLE = "Butler Console";
         private const string NO_WEBGL = "WebGL Module not installed. Please install it via the Unity Hub.";
 
@@ -39,7 +38,8 @@ namespace ButlerWindow
         private void OnEnable()
         {
             _butler = CreateInstance<ButlerWin64>();
-            _butler.Console = Console;
+            _butler.AppendConsoleMessage = Console.AppendContents;
+            _butler.SetConsoleMessage = Console.SetContents;
             _settingsEditor = Editor.CreateEditor(ButlerSettings.instance, typeof(ButlerSettingsEditor));
         }
 
@@ -74,8 +74,8 @@ namespace ButlerWindow
             GUILayout.EndHorizontal();
             GUILayout.Space(10f);
             _settingsEditor.OnInspectorGUI();
-            
-            var webGLAvailable = ModuleManagerProxy.IsBuildPlatformInstalled(BuildTarget.WebGL);
+
+            var webGLAvailable = true; //ModuleManagerProxy.IsBuildPlatformInstalled(BuildTarget.WebGL);
             if (!webGLAvailable)
             {
                 EditorGUILayout.HelpBox(NO_WEBGL, MessageType.Warning);

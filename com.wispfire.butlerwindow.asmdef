@@ -1,8 +1,7 @@
 {
     "name": "com.wispfire.butlerwindow",
     "references": [
-        "GUID:478a2357cc57436488a56e564b08d223",
-        "GUID:fb4c51b410e0745d6a7916a3536367c1"
+        "GUID:478a2357cc57436488a56e564b08d223"
     ],
     "includePlatforms": [
         "Editor"
