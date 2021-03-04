@@ -28,7 +28,7 @@ namespace ButlerWindow
         private Editor _settingsEditor;
         private ButlerSettings _settings => ButlerSettings.instance;
         
-        #if UNITY_2019
+        #if OLD_BUTLERWINDOW
         [MenuItem("Window/Upload to Itch.io")]
         #endif
         static void Open()

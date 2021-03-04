@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
-#if UNITY_2020_2_OR_NEWER
 namespace ButlerWindow
 {
     public class ButlerWindow2 : EditorWindow
@@ -12,6 +11,7 @@ namespace ButlerWindow
         public const string TITLE = "Upload to itch.io";
         public readonly string ShareUXML = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow_Share.uxml";
         public readonly string DownloadUXML = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow_Download.uxml";
+        public readonly string MainStyleSheet = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow.uss";
 
         private ButlerWin64 _butler;
         private ButlerSettings _settings => ButlerSettings.instance;
@@ -43,8 +43,11 @@ namespace ButlerWindow
 
         public void CreateGUI()
         {
+            
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(MainStyleSheet);
             // Create Download Page
-            _downloadPage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(DownloadUXML).Instantiate();
+            _downloadPage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(DownloadUXML).CloneTree();
+            _downloadPage.styleSheets.Add(styleSheet);
 
             var platformNotSupported = _downloadPage.Q<Label>("platformNotSupported");
             var downloadButton = _downloadPage.Q<Button>("downloadButton");
@@ -54,24 +57,24 @@ namespace ButlerWindow
             else downloadButton.RemoveFromHierarchy();
 
             downloadProgress.visible = false;
-            downloadButton.RegisterCallback<ClickEvent>(evt =>
+            downloadButton.clicked += () =>
             {
                 downloadProgress.visible = true;
                 _butler.DownloadButler(
                     progress => downloadProgress.value = progress,
                     onComplete: () => ShowPage(_sharePage));
-            });
+            };
 
             // Create Share Page
             var settings = new SerializedObject(ButlerSettings.instance);
             // Import Share UXML
-            _sharePage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShareUXML).Instantiate();
+            _sharePage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShareUXML).CloneTree();
+            _sharePage.styleSheets.Add(styleSheet);
 
             // Authenticate Butler
-            _sharePage.Q<Button>("auth").RegisterCallback<ClickEvent>((_) => _butler.Login());
-            _sharePage.Q<Button>("deAuth").RegisterCallback<ClickEvent>(_ => SetConsoleContents(_butler.Logout()));
-            _sharePage.Q<Button>("update")
-                .RegisterCallback<ClickEvent>(_ => SetConsoleContents(_butler.CheckForUpdates()));
+            _sharePage.Q<Button>("auth").clicked += _butler.Login;
+            _sharePage.Q<Button>("deAuth").clicked += () => SetConsoleContents(_butler.Logout());
+            _sharePage.Q<Button>("update").clicked += () => SetConsoleContents(_butler.CheckForUpdates());
 
             _sharePage.Q<EnumField>("buildTarget").BindProperty(settings.FindProperty("BuildTarget"));
             // Account, Project & URL
@@ -80,7 +83,7 @@ namespace ButlerWindow
             var prjct = _sharePage.Q<TextField>("project");
             prjct.BindProperty(settings.FindProperty("Project"));
             var urlDisplay = _sharePage.Q<Label>("projectUrl");
-            urlDisplay.RegisterCallback<ClickEvent>((cb) => Application.OpenURL(_settings.GetURL()));
+            urlDisplay.RegisterCallback<MouseUpEvent>((cb) => Application.OpenURL(_settings.GetURL()));
             urlDisplay.text = _settings.GetURL();
             acct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
             prjct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
@@ -107,7 +110,7 @@ namespace ButlerWindow
 
             // Build button
             var buildButton = _sharePage.Q<Button>("build");
-            buildButton.RegisterCallback<ClickEvent>(_ => Build());
+            buildButton.clicked += Build;
 
             // Console
             _console = _sharePage.Q<Label>("console");
@@ -176,4 +179,3 @@ namespace ButlerWindow
         }
     }
 }
-#endif

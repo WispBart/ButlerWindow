@@ -1,5 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" schemaLocation="UnityEngine.UIElements file:///B:/Projects/Fontys/Blop/UIElementsSchema/UnityEngine.UIElements.xsd" editor-extension-mode="True">
-    <Style src="ButlerWindow.uss" />
     <ui:Box name="Authentication" class="authentication">
         <ui:Label text="Butler Authentication" class="auth-label auth-toolbar-label" />
         <ui:VisualElement name="AuthenticationToolbar" class="auth-toolbar">
@@ -33,7 +32,7 @@
     <ui:VisualElement name="ConsoleContainer" class="console-container">
         <ui:Label text="Butler Output" display-tooltip-when-elided="true" name="Label" />
         <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="ButlerConsole" class="console-container">
-            <ui:Label display-tooltip-when-elided="true" name="console" focusable="true" class="console-text" style="border-left-color: rgba(159, 159, 159, 255); border-right-color: rgba(159, 159, 159, 255); border-top-color: rgba(159, 159, 159, 255); border-bottom-color: rgba(159, 159, 159, 255);" />
+            <ui:Label display-tooltip-when-elided="true" name="console" focusable="true" class="console-text"  />
         </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>
