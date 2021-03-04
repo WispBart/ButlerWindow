@@ -142,7 +142,7 @@ namespace ButlerWindow
         void OnGUI()
         {
             // There's no callbacks for certain values; so just update them in the OnGUI update loop.
-            _devBuildToggle.SetValueWithoutNotify(EditorUserBuildSettings.development);
+            _devBuildToggle?.SetValueWithoutNotify(EditorUserBuildSettings.development);
         }
 
 
