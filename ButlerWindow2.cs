@@ -74,6 +74,7 @@ namespace ButlerWindow
             _sharePage.Q<Button>("auth").clicked += _butler.Login;
             _sharePage.Q<Button>("deAuth").clicked += () => SetConsoleContents(_butler.Logout());
             _sharePage.Q<Button>("update").clicked += () => SetConsoleContents(_butler.CheckForUpdates());
+            
 
             _sharePage.Q<EnumField>("buildTarget").BindProperty(settings.FindProperty("BuildTarget"));
             // Account, Project & URL
@@ -110,6 +111,10 @@ namespace ButlerWindow
             // Build button
             var buildButton = _sharePage.Q<Button>("build");
             buildButton.clicked += Build;
+            
+            var newButton = new Button();
+            newButton.text = "I am a new button";
+            _sharePage.Add(newButton);
 
             // Console
             _console = _sharePage.Q<TextField>("console");
