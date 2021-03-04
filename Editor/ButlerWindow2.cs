@@ -9,9 +9,9 @@ namespace ButlerWindow
     public class ButlerWindow2 : EditorWindow
     {
         public const string TITLE = "Upload to itch.io";
-        public readonly string ShareUXML = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow_Share.uxml";
-        public readonly string DownloadUXML = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow_Download.uxml";
-        public readonly string MainStyleSheet = "Packages/com.wispfire.butlerwindow/UI/ButlerWindow.uss";
+        public readonly string ShareUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Share.uxml";
+        public readonly string DownloadUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Download.uxml";
+        public readonly string MainStyleSheet = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow.uss";
 
         private ButlerWin64 _butler;
         private ButlerSettings _settings => ButlerSettings.instance;
@@ -32,6 +32,7 @@ namespace ButlerWindow
         {
             _butler = CreateInstance<ButlerWin64>();
             _butler.SetConsoleMessage = SetConsoleContents;
+            
             _butler.AppendConsoleMessage = AppendConsoleMessage;
         }
 
@@ -102,7 +103,14 @@ namespace ButlerWindow
             overrideVersion.BindProperty(settings.FindProperty("OverrideVersion"));
             version.visible = overrideVersion.value;
             overrideVersion.RegisterValueChangedCallback((x) => version.visible = x.newValue);
-            _sharePage.Q<TextField>("buildPath").BindProperty(settings.FindProperty("BuildPath"));
+            
+            //buildPath
+            var buildPath = _sharePage.Q<TextField>("buildPath");
+            buildPath.BindProperty(settings.FindProperty("BuildPath"));
+            var overridebuildPath = _sharePage.Q<Toggle>("overrideBuildPath");
+            buildPath.visible = overridebuildPath.value;
+            overridebuildPath.RegisterValueChangedCallback((x) => buildPath.visible = x.newValue);
+
 
             _devBuildToggle = _sharePage.Q<Toggle>("devBuild");
             _devBuildToggle.SetValueWithoutNotify(EditorUserBuildSettings.development);
@@ -111,10 +119,6 @@ namespace ButlerWindow
             // Build button
             var buildButton = _sharePage.Q<Button>("build");
             buildButton.clicked += Build;
-            
-            var newButton = new Button();
-            newButton.text = "I am a new button";
-            _sharePage.Add(newButton);
 
             // Console
             _console = _sharePage.Q<TextField>("console");
@@ -156,12 +160,12 @@ namespace ButlerWindow
             bool confirm = EditorUtility.DisplayDialog("Build WebGL Player", "This might take a while... Continue?",
                 "Confirm", "Cancel");
             if (!confirm) return;
-
+            
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions()
             {
                 scenes = EditorBuildSettings.scenes.Select((scene) => scene.path).ToArray(),
                 target = (BuildTarget) _settings.BuildTarget,
-                locationPathName = _settings.BuildPath,
+                locationPathName = _settings.GetBuildPath(),
                 options = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None,
             });
             Share();

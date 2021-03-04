@@ -12,17 +12,26 @@ namespace ButlerWindow
         protected override SerializationMode defaultSerializationMode => SerializationMode.Text;
         
         public SupportedBuildTarget BuildTarget = SupportedBuildTarget.WebGL;
-
+        public string GetDefaultBuildPath(SupportedBuildTarget buildTarget)
+        {
+            switch (buildTarget)
+            {
+                case SupportedBuildTarget.WebGL: return "Builds/WebGL";
+                default: return "Builds/latestBuild";
+            }
+        }
         public string Account = "";
         public string Project = "";
         public bool OverrideChannel = false;
         public string Channel = "";
         public bool OverrideVersion = false;
         public string Version = "";
-
+        public bool OverrideBuildPath;
         public string BuildPath;
 
         public string GetChannel() => OverrideChannel ? Channel : BuildTarget.ToString();
+        public string GetBuildPath() => OverrideBuildPath ? BuildPath : GetDefaultBuildPath(BuildTarget);
+        
         public string GetURL() => $"https://{Account}.itch.io/{Project}";
         public string ToPushArgs()
         {

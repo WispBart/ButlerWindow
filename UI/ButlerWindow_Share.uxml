@@ -22,7 +22,10 @@
             <ui:Toggle label="Override Version" name="overrideVersion" />
             <ui:TextField picking-mode="Ignore" label="Version" name="version" class="channel-toggle__textfield" />
         </ui:VisualElement>
-        <ui:TextField picking-mode="Ignore" name="buildPath" label="Build Path" />
+        <ui:VisualElement name="channel" class="channel-toggle">
+            <ui:Toggle label="Override Build Path" name="overrideBuildPath" />
+            <ui:TextField picking-mode="Ignore" name="buildPath" label="Build Path" class="channel-toggle__textfield" />
+        </ui:VisualElement>
         <ui:Toggle label="Development Build" name="devBuild" />
     </ui:Box>
     <ui:VisualElement name="ShareButtons" class="sharebuttons" style="justify-content: flex-end;">
