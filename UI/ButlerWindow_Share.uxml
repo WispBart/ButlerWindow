@@ -32,7 +32,7 @@
     <ui:VisualElement name="ConsoleContainer" class="console-container">
         <ui:Label text="Butler Output" display-tooltip-when-elided="true" name="Label" />
         <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="ButlerConsole" class="console-container">
-            <ui:Label display-tooltip-when-elided="true" name="console" focusable="true" class="console-text"  />
+            <ui:TextField display-tooltip-when-elided="true" name="console" focusable="true" class="console-text"  />
         </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

@@ -18,7 +18,7 @@ namespace ButlerWindow
         private Toggle _devBuildToggle;
         private VisualElement _downloadPage;
         private VisualElement _sharePage;
-        private Label _console;
+        private TextField _console;
 
         [MenuItem("Window/Upload to itch.io")]
         public static void Open()
@@ -43,7 +43,6 @@ namespace ButlerWindow
 
         public void CreateGUI()
         {
-            
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(MainStyleSheet);
             // Create Download Page
             _downloadPage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(DownloadUXML).CloneTree();
@@ -113,7 +112,8 @@ namespace ButlerWindow
             buildButton.clicked += Build;
 
             // Console
-            _console = _sharePage.Q<Label>("console");
+            _console = _sharePage.Q<TextField>("console");
+            _console.isReadOnly = true;
 
             // Initialize page
             if (!_butler.IsInstalled) ShowPage(_downloadPage);
@@ -128,15 +128,15 @@ namespace ButlerWindow
 
         void SetConsoleContents(string msg)
         {
-            _console.text = msg;
+            _console.value = msg;
         }
 
         void AppendConsoleMessage(string msg)
         {
-            _console.text += msg;
+            _console.value += msg;
         }
 
-        void ClearConsole() => _console.text = string.Empty;
+        void ClearConsole() => _console.value = string.Empty;
 
 
         void OnGUI()
