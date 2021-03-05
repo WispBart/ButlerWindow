@@ -88,21 +88,22 @@
 .warning-box {
     white-space: normal;
     -unity-text-align: upper-center;
-    color: rgba(202, 31, 31, 255);
+    color: rgb(202, 31, 31);
     font-size: 13px;
     -unity-font-style: bold;
-    border-left-color: rgba(255, 236, 0, 255);
-    border-right-color: rgba(255, 236, 0, 255);
-    border-top-color: rgba(255, 236, 0, 255);
-    border-bottom-color: rgba(255, 236, 0, 255);
+    border-left-color: rgb(255, 236, 0);
+    border-right-color: rgb(255, 236, 0);
+    border-top-color: rgb(255, 236, 0);
+    border-bottom-color: rgb(255, 236, 0);
     border-left-width: 2px;
     border-right-width: 2px;
     border-top-width: 2px;
     border-bottom-width: 2px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    left: 50%;
 }
 
 .console-text {

@@ -11,6 +11,7 @@ namespace ButlerWindow
         public const string TITLE = "Upload to itch.io";
         public readonly string ShareUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Share.uxml";
         public readonly string DownloadUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Download.uxml";
+        public readonly string WrongPlatformUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_WrongPlatform.uxml";
         public readonly string MainStyleSheet = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow.uss";
 
         private ButlerWin64 _butler;
@@ -32,7 +33,6 @@ namespace ButlerWindow
         {
             _butler = CreateInstance<ButlerWin64>();
             _butler.SetConsoleMessage = SetConsoleContents;
-            
             _butler.AppendConsoleMessage = AppendConsoleMessage;
         }
 
@@ -45,16 +45,21 @@ namespace ButlerWindow
         public void CreateGUI()
         {
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(MainStyleSheet);
+
+            if (!IsEditorSupported())
+            {
+                var platformNotSupported = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(WrongPlatformUXML).CloneTree();
+                platformNotSupported.styleSheets.Add(styleSheet);
+                ShowPage(platformNotSupported);
+                return;
+            }
+            
             // Create Download Page
             _downloadPage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(DownloadUXML).CloneTree();
             _downloadPage.styleSheets.Add(styleSheet);
-
-            var platformNotSupported = _downloadPage.Q<Label>("platformNotSupported");
+            
             var downloadButton = _downloadPage.Q<Button>("downloadButton");
             var downloadProgress = _downloadPage.Q<ProgressBar>("downloadProgress");
-
-            if (IsEditorSupported()) platformNotSupported.RemoveFromHierarchy();
-            else downloadButton.RemoveFromHierarchy();
 
             downloadProgress.visible = false;
             downloadButton.clicked += () =>
@@ -66,7 +71,7 @@ namespace ButlerWindow
             };
 
             // Create Share Page
-            var settings = new SerializedObject(ButlerSettings.instance);
+            var settingsSo = new SerializedObject(_settings);
             // Import Share UXML
             _sharePage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShareUXML).CloneTree();
             _sharePage.styleSheets.Add(styleSheet);
@@ -77,12 +82,12 @@ namespace ButlerWindow
             _sharePage.Q<Button>("update").clicked += () => SetConsoleContents(_butler.CheckForUpdates());
             
 
-            _sharePage.Q<EnumField>("buildTarget").BindProperty(settings.FindProperty("BuildTarget"));
+            _sharePage.Q<EnumField>("buildTarget").BindProperty(settingsSo.FindProperty("BuildTarget"));
             // Account, Project & URL
             var acct = _sharePage.Q<TextField>("account");
-            acct.BindProperty(settings.FindProperty("Account"));
+            acct.BindProperty(settingsSo.FindProperty("Account"));
             var prjct = _sharePage.Q<TextField>("project");
-            prjct.BindProperty(settings.FindProperty("Project"));
+            prjct.BindProperty(settingsSo.FindProperty("Project"));
             var urlDisplay = _sharePage.Q<Label>("projectUrl");
             urlDisplay.RegisterCallback<MouseUpEvent>((cb) => Application.OpenURL(_settings.GetURL()));
             urlDisplay.text = _settings.GetURL();
@@ -91,22 +96,22 @@ namespace ButlerWindow
 
             // Channel
             var channel = _sharePage.Q<TextField>("channel");
-            channel.BindProperty(settings.FindProperty("Channel"));
+            channel.BindProperty(settingsSo.FindProperty("Channel"));
             var overrideChannel = _sharePage.Q<Toggle>("overrideChannel");
-            overrideChannel.BindProperty(settings.FindProperty("OverrideChannel"));
+            overrideChannel.BindProperty(settingsSo.FindProperty("OverrideChannel"));
             channel.visible = overrideChannel.value;
             overrideChannel.RegisterValueChangedCallback((x) => channel.visible = x.newValue);
             // Version
             var version = _sharePage.Q<TextField>("version");
-            version.BindProperty(settings.FindProperty("Version"));
+            version.BindProperty(settingsSo.FindProperty("Version"));
             var overrideVersion = _sharePage.Q<Toggle>("overrideVersion");
-            overrideVersion.BindProperty(settings.FindProperty("OverrideVersion"));
+            overrideVersion.BindProperty(settingsSo.FindProperty("OverrideVersion"));
             version.visible = overrideVersion.value;
             overrideVersion.RegisterValueChangedCallback((x) => version.visible = x.newValue);
             
             //buildPath
             var buildPath = _sharePage.Q<TextField>("buildPath");
-            buildPath.BindProperty(settings.FindProperty("BuildPath"));
+            buildPath.BindProperty(settingsSo.FindProperty("BuildPath"));
             var overridebuildPath = _sharePage.Q<Toggle>("overrideBuildPath");
             buildPath.visible = overridebuildPath.value;
             overridebuildPath.RegisterValueChangedCallback((x) => buildPath.visible = x.newValue);
@@ -125,8 +130,12 @@ namespace ButlerWindow
             _console.isReadOnly = true;
 
             // Initialize page
-            if (!_butler.IsInstalled) ShowPage(_downloadPage);
-            else ShowPage(_sharePage);
+            if (!_butler.IsInstalled)
+            {
+                ShowPage(_downloadPage);
+                return;
+            }
+            ShowPage(_sharePage);
         }
 
         public void ShowPage(VisualElement pageElement)

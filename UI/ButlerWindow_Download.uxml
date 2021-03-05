@@ -1,6 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
     <ui:VisualElement name="downloadContainer" class="download-container">
-        <ui:Label text="Upload to itch.io is currently only supported on Windows." display-tooltip-when-elided="true" name="platformNotSupported" class="warning-box" style="display: none;" />
         <ui:Button text="Download Butler" display-tooltip-when-elided="true" name="downloadButton" class="download-button" />
         <uie:ProgressBar name="downloadProgress" high-value="1" title="Downloading..." class="download--progressbar" />
     </ui:VisualElement>

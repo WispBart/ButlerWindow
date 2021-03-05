@@ -20,3 +20,8 @@ Butler Window / Upload to itch.io currently only supports the UnityEditor on Win
 
 ## Security
 Butler Window uses Butler for authentication, so no passwords are stored by the package.
+
+## Known issues
+* There is no way to see yet if you are already authenticated with Butler.
+* The tool fails ungracefully if you do not have the WebGL module installed.
+* The tool downloads and extracts Butler to %LocalAppData%\Butler, but does not attempt to find any existing installs in other locations.
