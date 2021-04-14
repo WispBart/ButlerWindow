@@ -1,48 +1,44 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 
 namespace ButlerWindow
 {
-
     public class ButlerWindow : EditorWindow
     {
         public const string TITLE = "Upload to itch.io";
-        private const string CONSOLE_TITLE = "Butler Console";
-        private const string NO_WEBGL = "WebGL Module not installed. Please install it via the Unity Hub.";
+        public readonly string ShareUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Share.uxml";
+        public readonly string DownloadUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_Download.uxml";
+        public readonly string WrongPlatformUXML = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow_WrongPlatform.uxml";
+        public readonly string MainStyleSheet = "Packages/com.wispbart.butlerwindow/UI/ButlerWindow.uss";
 
-        readonly static Vector2 MaxWindowSize = new Vector2(800, 800);
-        readonly static Vector2 WindowSize = new Vector2(800, 300);
-
-        public ConsoleWindow Console
-        {
-            get
-            {
-                if (_console == null) _console = GetWindow<ConsoleWindow>(CONSOLE_TITLE);
-                return _console;
-            }
-        }
-
-        private ConsoleWindow _console;
-        private ButlerWin64 _butler;
-        private Editor _settingsEditor;
-        private ButlerSettings _settings => ButlerSettings.instance;
+        public delegate void BuildCompleteHandler(BuildReport report);
+        public static event BuildCompleteHandler OnBuildComplete;
         
-        #if OLD_BUTLERWINDOW
-        [MenuItem("Window/Upload to Itch.io")]
-        #endif
-        static void Open()
+        private ButlerWin64 _butler;
+        private ButlerSettings _settings => ButlerSettings.instance;
+        private Toggle _devBuildToggle;
+        private VisualElement _downloadPage;
+        private VisualElement _sharePage;
+        private TextField _console;
+
+        [MenuItem("Window/Upload to itch.io")]
+        public static void Open()
         {
-            var window = GetWindow<ButlerWindow>(TITLE);
-            window.minSize = window.maxSize = WindowSize;
+            ButlerWindow wnd = GetWindow<ButlerWindow>();
+            wnd.titleContent = new GUIContent(TITLE);
+            wnd.minSize = new Vector2(400, 500);
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             _butler = CreateInstance<ButlerWin64>();
-            _butler.AppendConsoleMessage = Console.AppendContents;
-            _butler.SetConsoleMessage = Console.SetContents;
-            _settingsEditor = Editor.CreateEditor(ButlerSettings.instance, typeof(ButlerSettingsEditor));
+            _butler.SetConsoleMessage = SetConsoleContents;
+            _butler.AppendConsoleMessage = AppendConsoleMessage;
         }
 
         private void OnDisable()
@@ -50,94 +46,153 @@ namespace ButlerWindow
             DestroyImmediate(_butler);
         }
 
-        void OnGUI()
+
+        public void CreateGUI()
         {
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(MainStyleSheet);
+
             if (!IsEditorSupported())
             {
-                EditorGUILayout.HelpBox("ButlerWindow is only supported on Windows.", MessageType.Error);
+                var platformNotSupported = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(WrongPlatformUXML).CloneTree();
+                platformNotSupported.styleSheets.Add(styleSheet);
+                ShowPage(platformNotSupported);
                 return;
             }
             
+            // Create Download Page
+            _downloadPage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(DownloadUXML).CloneTree();
+            _downloadPage.styleSheets.Add(styleSheet);
+            
+            var downloadButton = _downloadPage.Q<Button>("downloadButton");
+            var downloadProgress = _downloadPage.Q<ProgressBar>("downloadProgress");
+
+            downloadProgress.visible = false;
+            downloadButton.clicked += () =>
+            {
+                downloadProgress.visible = true;
+                _butler.DownloadButler(
+                    progress => downloadProgress.value = progress,
+                    onComplete: () => ShowPage(_sharePage));
+            };
+
+            // Create Share Page
+            var settingsSo = new SerializedObject(_settings);
+            // Import Share UXML
+            _sharePage = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ShareUXML).CloneTree();
+            _sharePage.styleSheets.Add(styleSheet);
+            
+            // Authenticate Butler
+            _sharePage.Q<Button>("auth").clicked += _butler.Login;
+            _sharePage.Q<Button>("deAuth").clicked += () => SetConsoleContents(_butler.Logout());
+            _sharePage.Q<Button>("update").clicked += () => SetConsoleContents(_butler.CheckForUpdates());
+            
+
+            _sharePage.Q<EnumField>("buildTarget").BindProperty(settingsSo.FindProperty("BuildTarget"));
+            // Account, Project & URL
+            var acct = _sharePage.Q<TextField>("account");
+            acct.BindProperty(settingsSo.FindProperty("Account"));
+            var prjct = _sharePage.Q<TextField>("project");
+            prjct.BindProperty(settingsSo.FindProperty("Project"));
+            var urlDisplay = _sharePage.Q<Label>("projectUrl");
+            urlDisplay.RegisterCallback<MouseUpEvent>((cb) => Application.OpenURL(_settings.GetURL()));
+            urlDisplay.text = _settings.GetURL();
+            acct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
+            prjct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
+
+            // Channel
+            var channel = _sharePage.Q<TextField>("channel");
+            channel.BindProperty(settingsSo.FindProperty("Channel"));
+            var overrideChannel = _sharePage.Q<Toggle>("overrideChannel");
+            overrideChannel.BindProperty(settingsSo.FindProperty("OverrideChannel"));
+            channel.visible = overrideChannel.value;
+            overrideChannel.RegisterValueChangedCallback((x) => channel.visible = x.newValue);
+            // Version
+            var version = _sharePage.Q<TextField>("version");
+            version.BindProperty(settingsSo.FindProperty("Version"));
+            var overrideVersion = _sharePage.Q<Toggle>("overrideVersion");
+            overrideVersion.BindProperty(settingsSo.FindProperty("OverrideVersion"));
+            version.visible = overrideVersion.value;
+            overrideVersion.RegisterValueChangedCallback((x) => version.visible = x.newValue);
+            
+            //buildPath
+            var buildPath = _sharePage.Q<TextField>("buildPath");
+            buildPath.BindProperty(settingsSo.FindProperty("BuildPath"));
+            var overridebuildPath = _sharePage.Q<Toggle>("overrideBuildPath");
+            buildPath.visible = overridebuildPath.value;
+            overridebuildPath.RegisterValueChangedCallback((x) => buildPath.visible = x.newValue);
+
+
+            _devBuildToggle = _sharePage.Q<Toggle>("devBuild");
+            _devBuildToggle.SetValueWithoutNotify(EditorUserBuildSettings.development);
+            _devBuildToggle.RegisterValueChangedCallback((x) => EditorUserBuildSettings.development = x.newValue);
+
+            // Build button
+            var buildButton = _sharePage.Q<Button>("build");
+            buildButton.clicked += Build;
+
+            // Console
+            _console = _sharePage.Q<TextField>("console");
+            _console.isReadOnly = true;
+
+            // Initialize page
             if (!_butler.IsInstalled)
             {
-                ButlerNotInstalledGUI();
+                ShowPage(_downloadPage);
                 return;
             }
-
-
-            
-            GUILayout.Space(10f);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Butler Authentication");
-            //TODO: Can check the pc for credentials to find out if it is authenticated.
-            if (GUILayout.Button("Authenticate")) _butler.Login();
-            if (GUILayout.Button("Remove Authentication")) Console.Contents = _butler.Logout();
-            if (GUILayout.Button("Check for Updates")) Console.SetContents(_butler.CheckForUpdates());
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10f);
-            _settingsEditor.OnInspectorGUI();
-
-            var webGLAvailable = true; //ModuleManagerProxy.IsBuildPlatformInstalled(BuildTarget.WebGL);
-            if (!webGLAvailable)
-            {
-                EditorGUILayout.HelpBox(NO_WEBGL, MessageType.Warning);
-            }
-
-            EditorUserBuildSettings.development =
-                EditorGUILayout.Toggle("Development Build", EditorUserBuildSettings.development);
-
-            if (GUILayout.Button(_settings.GetURL(), EditorStyles.linkLabel))
-            {
-                Application.OpenURL(_settings.GetURL());
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            GUI.enabled = webGLAvailable && !_butler.IsUploading;
-            if (GUILayout.Button("Build & Share")) Build();
-            if (GUILayout.Button("Share")) Share();
-            if (_butler.IsUploading) EditorGUILayout.HelpBox("Uploading build to Itch.IO. Check console for progress.", MessageType.Info);
-            GUI.enabled = true;
-            EditorGUILayout.EndHorizontal();
-
+            ShowPage(_sharePage);
         }
 
- 
-        void ButlerNotInstalledGUI()
+        public void ShowPage(VisualElement pageElement)
         {
-            GUILayout.Label("Butler not detected. Press the button to download.");
-            
-            if (GUILayout.Button("Download Butler"))
-            {
-                _butler.DownloadButler((x) =>
-                {
-                    EditorUtility.DisplayProgressBar("Downloading Butler", "", x);
-                }, EditorUtility.ClearProgressBar);
-            }
+            rootVisualElement.Clear();
+            rootVisualElement.Add(pageElement);
         }
+
+        void SetConsoleContents(string msg)
+        {
+            _console.value = msg;
+        }
+
+        void AppendConsoleMessage(string msg)
+        {
+            _console.value += msg;
+        }
+
+        void ClearConsole() => _console.value = string.Empty;
+
+
+        void OnGUI()
+        {
+            // There's no callbacks for certain values; so just update them in the OnGUI update loop.
+            _devBuildToggle?.SetValueWithoutNotify(EditorUserBuildSettings.development);
+        }
+
 
         private void Build()
         {
-            bool confirm = EditorUtility.DisplayDialog("Build WebGL Player", "This might take a while... Continue?", "Confirm", "Cancel");
+            bool confirm = EditorUtility.DisplayDialog("Build WebGL Player", "This might take a while... Continue?",
+                "Confirm", "Cancel");
             if (!confirm) return;
             
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions()
             {
                 scenes = EditorBuildSettings.scenes.Select((scene) => scene.path).ToArray(),
-                target = (BuildTarget)_settings.BuildTarget,
-                locationPathName = _settings.BuildPath,
+                target = (BuildTarget) _settings.BuildTarget,
+                locationPathName = _settings.GetBuildPath(),
                 options = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None,
             });
+            OnBuildComplete?.Invoke(report);
             Share();
         }
-        
-        
+
+
         private void Share()
         {
             _butler.UploadBuild(_settings);
         }
-        
-        
-        
+
+
         public bool IsEditorSupported()
         {
 #if UNITY_EDITOR_WIN
@@ -146,8 +201,5 @@ namespace ButlerWindow
             return false;
 #endif
         }
-
     }
-
-
 }

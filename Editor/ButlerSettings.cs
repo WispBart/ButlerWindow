@@ -35,7 +35,7 @@ namespace ButlerWindow
         public string GetURL() => $"https://{Account}.itch.io/{Project}";
         public string ToPushArgs()
         {
-          var args = $"push {BuildPath} {Account}/{Project}:{GetChannel()}";
+          var args = $"push {GetBuildPath()} {Account}/{Project}:{GetChannel()}";
           if (OverrideVersion) args += $" --userversion {Version}";
           return args;
         } 
