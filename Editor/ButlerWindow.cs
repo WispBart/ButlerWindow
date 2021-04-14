@@ -36,9 +36,7 @@ namespace ButlerWindow
 
         void OnEnable()
         {
-            _butler = CreateInstance<ButlerWin64>();
-            _butler.SetConsoleMessage = SetConsoleContents;
-            _butler.AppendConsoleMessage = AppendConsoleMessage;
+            InitializeButlerIfNecessary();
         }
 
         private void OnDisable()
@@ -46,9 +44,19 @@ namespace ButlerWindow
             DestroyImmediate(_butler);
         }
 
+        void InitializeButlerIfNecessary()
+        {
+            if (_butler != null) return;
+            _butler = CreateInstance<ButlerWin64>();
+            _butler.SetConsoleMessage = SetConsoleContents;
+            _butler.AppendConsoleMessage = AppendConsoleMessage;
+        }
+
 
         public void CreateGUI()
         {
+            InitializeButlerIfNecessary();
+
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(MainStyleSheet);
 
             if (!IsEditorSupported())
