@@ -1,17 +1,11 @@
 {
   "name": "com.wispbart.butlerwindow",
   "displayName": "itch.io Window",
-  "version": "0.6.0-preview",
+  "version": "0.6.2-preview",
   "unity": "2019.4",
   "description": "An editor window for quickly and easily sharing your project to itch.io as a WebGL build.\n\nThis tool downloads & wraps Butler so you can build & upload your project to itch.io with a single button. It's ideal for rapidly sharing the latest iteration of your game, prototype or other without having to leave your Editor.\n\nPreview versions have not been exhaustively tested.",
   "dependencies": {
     "com.unity.editorcoroutines": "0.1.0-preview.1"
-  },
-  "repository": {
-    "footprint": "1c64eb0befc6f236f2773f6f20589947c3755047",
-    "type": "git",
-    "url": "https://github.cds.internal.unity3d.com/unity/com.unity.connect.share.git",
-    "revision": "9f8c6fec760d9bf6e42ac04348d31572bc695533"
   },
   "type": "tool"
 }
