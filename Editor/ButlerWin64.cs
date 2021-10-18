@@ -159,28 +159,30 @@ namespace ButlerWindow
 
         IEnumerator DownloadAndInstallButlerRoutine(Action<float> progress, Action onComplete)
         {
-            var webRequest = new UnityWebRequest()
+            using (var webRequest = new UnityWebRequest()
             {
                 url = ButlerForWindows64URI,
                 method = "GET",
                 downloadHandler = new DownloadHandlerBuffer(),
-            };
-            webRequest.SendWebRequest();
-            while (!webRequest.isDone)
+            }) 
             {
-                yield return new EditorWaitForSeconds(0.2f);
-                progress.Invoke(webRequest.downloadProgress);
-            }
+                webRequest.SendWebRequest();
+                while (!webRequest.isDone)
+                {
+                    yield return new EditorWaitForSeconds(0.2f);
+                    progress.Invoke(webRequest.downloadProgress);
+                }
 
-            if (webRequest.isHttpError || webRequest.isNetworkError)
-            {
-                Debug.LogError($"Error occured: {webRequest.error}");
-                yield break;
-            }
+                if (webRequest.isHttpError || webRequest.isNetworkError)
+                {
+                    Debug.LogError($"Error occured: {webRequest.error}");
+                    yield break;
+                }
 
-            Directory.CreateDirectory(ButlerInstallPath);
-            File.WriteAllBytes(ButlerZipPath, webRequest.downloadHandler.data);
-            ZipFile.ExtractToDirectory(ButlerZipPath, ButlerInstallPath);
+                Directory.CreateDirectory(ButlerInstallPath);
+                File.WriteAllBytes(ButlerZipPath, webRequest.downloadHandler.data);
+                ZipFile.ExtractToDirectory(ButlerZipPath, ButlerInstallPath);
+            }
             onComplete();
             CheckIsInstalled();
         }

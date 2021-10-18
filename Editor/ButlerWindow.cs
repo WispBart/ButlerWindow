@@ -104,8 +104,8 @@ namespace ButlerWindow
             var urlDisplay = _sharePage.Q<Label>("projectUrl");
             urlDisplay.RegisterCallback<MouseUpEvent>((cb) => Application.OpenURL(_settings.GetURL()));
             urlDisplay.text = _settings.GetURL();
-            acct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
-            prjct.RegisterValueChangedCallback((_) => urlDisplay.text = _settings.GetURL());
+            acct.RegisterValueChangedCallback((_) => DelayUpdateURL(urlDisplay));
+            prjct.RegisterValueChangedCallback((_) => DelayUpdateURL(urlDisplay));
 
             // Channel
             var channel = _sharePage.Q<TextField>("channel");
@@ -149,6 +149,15 @@ namespace ButlerWindow
                 return;
             }
             ShowPage(_sharePage);
+        }
+
+        void DelayUpdateURL(Label urlDisplay)
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (urlDisplay == null) return;
+                urlDisplay.text = _settings.GetURL();
+            };
         }
 
         public void ShowPage(VisualElement pageElement)

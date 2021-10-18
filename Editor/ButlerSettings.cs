@@ -16,7 +16,9 @@ namespace ButlerWindow
         {
             switch (buildTarget)
             {
+                case SupportedBuildTarget.StandaloneWindows: return "Builds/Windows";
                 case SupportedBuildTarget.WebGL: return "Builds/WebGL";
+                case SupportedBuildTarget.Android: return "Builds/Android";
                 default: return "Builds/latestBuild";
             }
         }
@@ -42,6 +44,8 @@ namespace ButlerWindow
 
         public enum SupportedBuildTarget
         {
+            StandaloneWindows = 5,
+            Android = 13,
             WebGL = 20,
         }
     }
