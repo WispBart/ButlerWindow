@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,16 +13,28 @@ namespace ButlerWindow
         protected override SerializationMode defaultSerializationMode => SerializationMode.Text;
         
         public SupportedBuildTarget BuildTarget = SupportedBuildTarget.WebGL;
+
+        private const string BuildsDir = "Builds";
         public string GetDefaultBuildPath(SupportedBuildTarget buildTarget)
         {
             switch (buildTarget)
             {
-                case SupportedBuildTarget.StandaloneWindows: return "Builds/Windows";
-                case SupportedBuildTarget.WebGL: return "Builds/WebGL";
-                case SupportedBuildTarget.Android: return "Builds/Android";
-                default: return "Builds/latestBuild";
+                case SupportedBuildTarget.StandaloneWindows: return Path.Combine(BuildsDir, "Windows");
+                case SupportedBuildTarget.WebGL: return Path.Combine(BuildsDir, "WebGL");
+                case SupportedBuildTarget.Android: return Path.Combine(BuildsDir, "Android");
+                default: return Path.Combine(BuildsDir, "LatestBuild");
             }
         }
+
+        public string AddFileNameIfNecessary(string path, SupportedBuildTarget buildTarget)
+        {
+            switch (buildTarget)
+            {
+                case SupportedBuildTarget.Android: return Path.Combine(path, Application.productName + ".apk");
+                default: return path;
+            }
+        }
+
         public string Account = "";
         public string Project = "";
         public bool OverrideChannel = false;
@@ -32,12 +45,13 @@ namespace ButlerWindow
         public string BuildPath;
 
         public string GetChannel() => OverrideChannel ? Channel : BuildTarget.ToString();
-        public string GetBuildPath() => OverrideBuildPath ? BuildPath : GetDefaultBuildPath(BuildTarget);
-        
+        public string GetBuildDirectory() => OverrideBuildPath ? BuildPath : GetDefaultBuildPath(BuildTarget);
+        public string GetFullBuildPath() => AddFileNameIfNecessary(GetBuildDirectory(), BuildTarget);
+
         public string GetURL() => $"https://{Account}.itch.io/{Project}";
         public string ToPushArgs()
         {
-          var args = $"push {GetBuildPath()} {Account}/{Project}:{GetChannel()}";
+          var args = $"push {GetBuildDirectory()} {Account}/{Project}:{GetChannel()}";
           if (OverrideVersion) args += $" --userversion {Version}";
           return args;
         } 

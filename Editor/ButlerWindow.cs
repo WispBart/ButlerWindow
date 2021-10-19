@@ -196,7 +196,7 @@ namespace ButlerWindow
             {
                 scenes = EditorBuildSettings.scenes.Select((scene) => scene.path).ToArray(),
                 target = (BuildTarget) _settings.BuildTarget,
-                locationPathName = _settings.GetBuildPath(),
+                locationPathName = _settings.GetFullBuildPath(),
                 options = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None,
             });
             OnBuildComplete?.Invoke(report);
