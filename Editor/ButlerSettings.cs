@@ -15,7 +15,7 @@ namespace ButlerWindow
         public SupportedBuildTarget BuildTarget = SupportedBuildTarget.WebGL;
 
         private const string BuildsDir = "Builds";
-        public string GetDefaultBuildPath(SupportedBuildTarget buildTarget)
+        public string GetDefaultBuildDirectory(SupportedBuildTarget buildTarget)
         {
             switch (buildTarget)
             {
@@ -31,6 +31,7 @@ namespace ButlerWindow
             switch (buildTarget)
             {
                 case SupportedBuildTarget.Android: return Path.Combine(path, Application.productName + ".apk");
+                case SupportedBuildTarget.StandaloneWindows: return Path.Combine(path, Application.productName + ".exe");
                 default: return path;
             }
         }
@@ -45,8 +46,8 @@ namespace ButlerWindow
         public string BuildPath;
 
         public string GetChannel() => OverrideChannel ? Channel : BuildTarget.ToString();
-        public string GetBuildDirectory() => OverrideBuildPath ? BuildPath : GetDefaultBuildPath(BuildTarget);
-        public string GetFullBuildPath() => AddFileNameIfNecessary(GetBuildDirectory(), BuildTarget);
+        public string GetBuildDirectory() => OverrideBuildPath ? BuildPath : GetDefaultBuildDirectory(BuildTarget);
+        public string GetBuildPath() => AddFileNameIfNecessary(GetBuildDirectory(), BuildTarget);
 
         public string GetURL() => $"https://{Account}.itch.io/{Project}";
         public string ToPushArgs()

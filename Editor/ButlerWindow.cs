@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -188,15 +189,19 @@ namespace ButlerWindow
 
         private void Build()
         {
-            bool confirm = EditorUtility.DisplayDialog("Build WebGL Player", "This might take a while... Continue?",
+            bool confirm = EditorUtility.DisplayDialog("Build Player", "This might take a while... Continue?",
                 "Confirm", "Cancel");
             if (!confirm) return;
+
+            var buildDir = _settings.GetBuildDirectory();
+            var buildPath = _settings.GetBuildPath();
+            if (!Directory.Exists(buildDir)) Directory.CreateDirectory(buildDir);
             
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions()
             {
                 scenes = EditorBuildSettings.scenes.Select((scene) => scene.path).ToArray(),
                 target = (BuildTarget) _settings.BuildTarget,
-                locationPathName = _settings.GetFullBuildPath(),
+                locationPathName = buildPath,
                 options = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None,
             });
             OnBuildComplete?.Invoke(report);
