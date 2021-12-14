@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -26,6 +25,7 @@ namespace ButlerWindow
         private VisualElement _downloadPage;
         private VisualElement _sharePage;
         private TextField _console;
+        private const int MaxConsoleCharacters = 10000;
 
         [MenuItem("Window/Upload to itch.io")]
         public static void Open()
@@ -124,11 +124,11 @@ namespace ButlerWindow
             overrideVersion.RegisterValueChangedCallback((x) => version.visible = x.newValue);
             
             //buildPath
-            var buildPath = _sharePage.Q<TextField>("buildPath");
-            buildPath.BindProperty(settingsSo.FindProperty("BuildPath"));
-            var overridebuildPath = _sharePage.Q<Toggle>("overrideBuildPath");
-            buildPath.visible = overridebuildPath.value;
-            overridebuildPath.RegisterValueChangedCallback((x) => buildPath.visible = x.newValue);
+            var buildDir = _sharePage.Q<TextField>("buildPath");
+            buildDir.BindProperty(settingsSo.FindProperty("BuildDirectory"));
+            var overrideBuildDir = _sharePage.Q<Toggle>("overrideBuildPath");
+            buildDir.visible = overrideBuildDir.value;
+            overrideBuildDir.RegisterValueChangedCallback((x) => buildDir.visible = x.newValue);
 
 
             _devBuildToggle = _sharePage.Q<Toggle>("devBuild");
@@ -169,12 +169,17 @@ namespace ButlerWindow
 
         void SetConsoleContents(string msg)
         {
+            if (msg.Length > MaxConsoleCharacters)
+                msg = msg.Substring(msg.Length - MaxConsoleCharacters);
             _console.value = msg;
         }
 
         void AppendConsoleMessage(string msg)
         {
-            _console.value += msg;
+            var newText = _console.value + msg;
+            if (newText.Length > MaxConsoleCharacters)
+                newText = newText.Substring(newText.Length - MaxConsoleCharacters);
+            _console.value = newText;
         }
 
         void ClearConsole() => _console.value = string.Empty;
@@ -204,8 +209,16 @@ namespace ButlerWindow
                 locationPathName = buildPath,
                 options = EditorUserBuildSettings.development ? BuildOptions.Development : BuildOptions.None,
             });
-            OnBuildComplete?.Invoke(report);
-            Share();
+            
+            if (report.summary.result == BuildResult.Succeeded)
+            {
+                OnBuildComplete?.Invoke(report);
+                Share();
+            }
+            else
+            {
+                Debug.LogWarning("Build didn't complete. Cancelling itch.io upload.");
+            }
         }
 
 
