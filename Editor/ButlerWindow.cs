@@ -19,7 +19,7 @@ namespace ButlerWindow
         public delegate void BuildCompleteHandler(BuildReport report);
         public static event BuildCompleteHandler OnBuildComplete;
         
-        private ButlerWin64 _butler;
+        private Butler _butler;
         private ButlerSettings _settings => ButlerSettings.instance;
         private Toggle _devBuildToggle;
         private VisualElement _downloadPage;
@@ -48,7 +48,11 @@ namespace ButlerWindow
         void InitializeButlerIfNecessary()
         {
             if (_butler != null) return;
+            #if UNITY_EDITOR_OSX
+            _butler = CreateInstance<ButlerMacOS>();
+            #elif UNITY_EDITOR_WIN
             _butler = CreateInstance<ButlerWin64>();
+            #endif
             _butler.SetConsoleMessage = SetConsoleContents;
             _butler.AppendConsoleMessage = AppendConsoleMessage;
         }
@@ -230,7 +234,7 @@ namespace ButlerWindow
 
         public bool IsEditorSupported()
         {
-#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX
             return true;
 #else
             return false;
