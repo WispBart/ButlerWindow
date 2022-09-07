@@ -1,5 +1,10 @@
 # ChangeLog
 
+## [1.0.0]
+* Added support for building from MacOS.
+* Added support for building to Android (APK file).
+* If the build failed for any reason, ButlerWindow no longer tries to upload it.
+
 ## [0.6.2-preview]
 * Added ButlerWindow.OnBuildComplete(BuildReport) that gets invoked with the build report just before the build is uploaded.
 * Bugfix: Default build path was not being passed to Butler correctly, resulting in an error.

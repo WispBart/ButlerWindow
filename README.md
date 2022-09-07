@@ -8,20 +8,22 @@ This tool downloads & wraps [Butler](https://itch.io/docs/butler/) so you can bu
 ## Installation & Use
 
 In the Unity Package Manager (window -> Package Manager), select the + and 'Add package from git URL' and type https://github.com/WispBart/ButlerWindow.git
+Alternatively, download as a zip and extract to the Packages/ directory of your Unity Project.
 After the package is successfully installed, you can find Butler Window under 'window -> Upload to itch.io'.
 
 After letting the tool install Butler, Add the account and project name of an itch.io project you have access to. Click on the link to check if they are correct. Click Build & Share to build and upload your game.
 
 ## Requirements
-Butler Window was tested with Unity 2019.4 and 2020.2. Butler Window currently only builds to WebGL (by choice), so you need to have the WebGl Build module installed.
+Butler Window was tested with Unity 2019.4, and 2022.1. Butler Window can build to Windows, MacOS, Android and WebGL. 
 
 ## Supported Platforms
-Butler Window / Upload to itch.io currently only supports the UnityEditor on Windows, although it can be safely shared with Linux/macOS machines.
+Butler Window / Upload to itch.io currently supports the UnityEditor on Windows and MacOS.
+Currently supported build targets are: Windows standalone, Android and WebGL. 
 
 ## Security
 Butler Window uses Butler for authentication, so no passwords are stored by the package.
 
 ## Known issues
 * There is no way to see yet if you are already authenticated with Butler.
-* The tool fails ungracefully if you do not have the WebGL module installed.
+* The tool fails ungracefully if you do not have the required build module installed.
 * The tool downloads and extracts Butler to %LocalAppData%\Butler, but does not attempt to find any existing installs in other locations.

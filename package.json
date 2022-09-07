@@ -1,11 +1,11 @@
 {
   "name": "com.wispbart.butlerwindow",
   "displayName": "itch.io Window",
-  "version": "0.6.2-preview",
+  "version": "1.0.0",
   "unity": "2019.4",
-  "description": "An editor window for quickly and easily sharing your project to itch.io as a WebGL build.\n\nThis tool downloads & wraps Butler so you can build & upload your project to itch.io with a single button. It's ideal for rapidly sharing the latest iteration of your game, prototype or other without having to leave your Editor.\n\nPreview versions have not been exhaustively tested.",
+  "description": "An editor window for quickly and easily sharing your project to itch.io as a WebGL build.\n\nThis tool downloads & wraps Butler so you can build & upload your project to itch.io with a single button. It's ideal for rapidly sharing the latest iteration of your game, prototype or other without having to leave your Editor.\n\nSupported editors are Windows and MacOS.\nSupported build targets are Windows, Android and WebGL.",
   "dependencies": {
-    "com.unity.editorcoroutines": "0.1.0-preview.1"
+    "com.unity.editorcoroutines": "1.0.0"
   },
   "type": "tool"
 }
