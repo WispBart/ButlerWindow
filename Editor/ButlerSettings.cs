@@ -74,7 +74,7 @@ namespace ButlerWindow
 
         public enum SupportedBuildTarget
         {
-            Windows = 5,
+            Windows = 19,
             Android = 13,
             WebGL = 20,
         }
