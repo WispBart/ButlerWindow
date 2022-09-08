@@ -32,7 +32,7 @@ namespace ButlerWindow
         {
             ButlerWindow wnd = GetWindow<ButlerWindow>();
             wnd.titleContent = new GUIContent(TITLE);
-            wnd.minSize = new Vector2(400, 500);
+            wnd.minSize = new Vector2(500, 430);
         }
 
         void OnEnable()
@@ -99,7 +99,6 @@ namespace ButlerWindow
             _sharePage.Q<Button>("deAuth").clicked += () => SetConsoleContents(_butler.Logout());
             _sharePage.Q<Button>("update").clicked += () => SetConsoleContents(_butler.CheckForUpdates());
             
-
             _sharePage.Q<EnumField>("buildTarget").BindProperty(settingsSo.FindProperty("BuildTarget"));
             // Account, Project & URL
             var acct = _sharePage.Q<TextField>("account");
@@ -127,18 +126,20 @@ namespace ButlerWindow
             version.visible = overrideVersion.value;
             overrideVersion.RegisterValueChangedCallback((x) => version.visible = x.newValue);
             
-            //buildPath
+            // buildPath
             var buildDir = _sharePage.Q<TextField>("buildPath");
             buildDir.BindProperty(settingsSo.FindProperty("BuildDirectory"));
             var overrideBuildDir = _sharePage.Q<Toggle>("overrideBuildPath");
             buildDir.visible = overrideBuildDir.value;
             overrideBuildDir.RegisterValueChangedCallback((x) => buildDir.visible = x.newValue);
-
-
+            
             _devBuildToggle = _sharePage.Q<Toggle>("devBuild");
             _devBuildToggle.SetValueWithoutNotify(EditorUserBuildSettings.development);
             _devBuildToggle.RegisterValueChangedCallback((x) => EditorUserBuildSettings.development = x.newValue);
 
+            // Confirm Upload
+            _sharePage.Q<Toggle>("ConfirmUpload").BindProperty(settingsSo.FindProperty("ConfirmUpload"));
+            
             // Build button
             var buildButton = _sharePage.Q<Button>("build");
             buildButton.clicked += Build;
@@ -217,11 +218,23 @@ namespace ButlerWindow
             if (report.summary.result == BuildResult.Succeeded)
             {
                 OnBuildComplete?.Invoke(report);
-                Share();
+                if (!_settings.ConfirmUpload || EditorUtility.DisplayDialog(
+                    "Build Complete", 
+                    "Start upload to Itch.io?", 
+                    "Share now",
+                    "Cancel upload"))
+                {
+                    Share();
+                }
+                else
+                {
+                    AppendConsoleMessage("User cancelled upload.");
+                }
             }
             else
             {
                 Debug.LogWarning("Build didn't complete. Cancelling itch.io upload.");
+                AppendConsoleMessage("Build didn't complete. Cancelling itch.io upload.");
             }
         }
 

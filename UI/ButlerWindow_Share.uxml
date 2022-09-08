@@ -1,4 +1,4 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" schemaLocation="UnityEngine.UIElements file:///B:/Projects/Fontys/Blop/UIElementsSchema/UnityEngine.UIElements.xsd" editor-extension-mode="True">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:Box name="Authentication" class="authentication">
         <ui:Label text="Butler Authentication" class="auth-label auth-toolbar-label" />
         <ui:VisualElement name="AuthenticationToolbar" class="auth-toolbar">
@@ -28,14 +28,15 @@
         </ui:VisualElement>
         <ui:Toggle label="Development Build" name="devBuild" />
     </ui:Box>
-    <ui:VisualElement name="ShareButtons" class="sharebuttons" style="justify-content: flex-end;">
+    <ui:Box name="ShareButtons" class="sharebuttons" style="justify-content: flex-end;">
+        <ui:Toggle name="ConfirmUpload" text="Prompt for confirmation before uploading" />
         <ui:Button text="Build &amp; Share" display-tooltip-when-elided="true" name="build" />
         <ui:Button text="Share" display-tooltip-when-elided="true" name="share" style="display: none;" />
-    </ui:VisualElement>
+    </ui:Box>
     <ui:VisualElement name="ConsoleContainer" class="console-container">
         <ui:Label text="Butler Output" display-tooltip-when-elided="true" name="Label" />
         <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="ButlerConsole" class="console-container">
-            <ui:TextField display-tooltip-when-elided="true" name="console" focusable="true" class="console-text"  />
+            <ui:TextField display-tooltip-when-elided="true" name="console" focusable="true" class="console-text" />
         </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

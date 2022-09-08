@@ -44,6 +44,7 @@ namespace ButlerWindow
         public string Version = "";
         [FormerlySerializedAs("OverrideBuildPath")] public bool OverrideBuildDirectory;
         [FormerlySerializedAs("BuildPath")] public string BuildDirectory;
+        public bool ConfirmUpload = true;
         
         public string GetChannel() => OverrideChannel ? Channel : BuildTarget.ToString();
         public string GetBuildDirectory() => OverrideBuildDirectory ? BuildDirectory : GetDefaultBuildDirectory(BuildTarget);
@@ -79,34 +80,5 @@ namespace ButlerWindow
             WebGL = 20,
         }
         
-    }
-
-    public class ButlerSettingsEditor : Editor
-    {
-        private string[] excludedProps = new string[3];
-
-        private SerializedProperty overrideChannel;
-        private SerializedProperty overrideVersion;
-        void GetExcludedProps()
-        {
-            var t = serializedObject.targetObject as ButlerSettings;
-            excludedProps[0] = "m_Script";
-            excludedProps[1] = overrideChannel.boolValue ? "" : "Channel";
-            excludedProps[2] = overrideVersion.boolValue ? "" : "Version";
-        }
-
-        void OnEnable()
-        {
-            overrideChannel = serializedObject.FindProperty("OverrideChannel");
-            overrideVersion = serializedObject.FindProperty("OverrideVersion");
-        }
-        
-        public override void OnInspectorGUI()
-        {
-            GetExcludedProps();
-            serializedObject.Update();
-            DrawPropertiesExcluding(serializedObject, excludedProps);
-            serializedObject.ApplyModifiedProperties();
-        }
     }
 }
