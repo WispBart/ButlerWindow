@@ -1,4 +1,7 @@
 # ChangeLog
+## [1.0.1]
+* Added an option to request confirmation before uploading, so you can check your build locally first.
+* 'Windows' buildtarget now builds to StandaloneWindows64 instead of StandaloneWindows.
 
 ## [1.0.0]
 * Added support for building from MacOS.
