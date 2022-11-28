@@ -207,6 +207,18 @@ namespace ButlerWindow
             var buildPath = _settings.GetBuildPath();
             if (!Directory.Exists(buildDir)) Directory.CreateDirectory(buildDir);
             
+            // Apply player settings for itch.io
+            var compressionFormat = PlayerSettings.WebGL.compressionFormat;
+            if (compressionFormat != WebGLCompressionFormat.Disabled)
+            {
+                SetConsoleContents("Itch.io expects uncompressed content. Setting WebGL compression format to disabled for this build.\n");
+                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+            }
+            if (PlayerSettings.WebGL.exceptionSupport != WebGLExceptionSupport.None)
+            {
+                AppendConsoleMessage("WebGL Exception Catching is currently enabled. For release builds, this should be disabled in PlayerSettings.\n");
+            }
+
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions()
             {
                 scenes = EditorBuildSettings.scenes.Select((scene) => scene.path).ToArray(),
@@ -236,6 +248,9 @@ namespace ButlerWindow
                 Debug.LogWarning("Build didn't complete. Cancelling itch.io upload.");
                 AppendConsoleMessage("Build didn't complete. Cancelling itch.io upload.");
             }
+            
+            // Restore settings;
+            PlayerSettings.WebGL.compressionFormat = compressionFormat;
         }
 
 
