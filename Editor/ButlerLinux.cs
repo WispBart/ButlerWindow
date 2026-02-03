@@ -5,12 +5,12 @@ using Debug = UnityEngine.Debug;
 
 namespace ButlerWindow
 {
-    public class ButlerMacOS : Butler
+    public class ButlerLinux : Butler
     {
-        protected override string ButlerURI => "https://broth.itch.zone/butler/darwin-amd64/LATEST/archive/default";
+        protected override string ButlerURI => "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default";
         protected override string ButlerExecutable => "butler";
-        protected override string ButlerInstallPath => Path.Combine(Environment.GetEnvironmentVariable("HOME"), "Library/Application Support/butler") + "/";
-        protected override string ButlerZipPath => Path.Combine(Environment.GetEnvironmentVariable("TMPDIR"), "butler_download.zip");
+        protected override string ButlerInstallPath => Path.Combine(Environment.GetEnvironmentVariable("HOME"), "bin") + "/";
+        protected override string ButlerZipPath => Path.Combine("/tmp", "butler_download.zip");
 
 
         protected override bool TrySetPermissions()

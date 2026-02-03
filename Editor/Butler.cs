@@ -95,7 +95,12 @@ namespace ButlerWindow
             while (!process.HasExited)
             {
                 var consoleStream = process.StandardOutput;
-                SetConsoleMessage?.Invoke(consoleStream.ReadToEnd());
+                var msg = consoleStream.ReadToEnd();
+                if (msg.Contains("stdin is not a terminal")) // On Linux IsTerminal() returns false and login is not allowed.
+                {
+                    msg = "\nAuthenticate by typing 'butler login' in the terminal instead."; 
+                }
+                SetConsoleMessage?.Invoke(msg);
                 yield return null;
             }
 
@@ -106,7 +111,7 @@ namespace ButlerWindow
             else
             {
                 string errorOut = process.StandardError.ReadToEnd();
-                onComplete.Invoke(false, errorOut);
+                onComplete?.Invoke(false, errorOut);
             }
         }
 
@@ -176,7 +181,8 @@ namespace ButlerWindow
                     progress.Invoke(webRequest.downloadProgress);
                 }
 
-                if (webRequest.isHttpError || webRequest.isNetworkError)
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogError($"Error occured: {webRequest.error}");
                     yield break;

@@ -52,6 +52,8 @@ namespace ButlerWindow
             _butler = CreateInstance<ButlerMacOS>();
             #elif UNITY_EDITOR_WIN
             _butler = CreateInstance<ButlerWin64>();
+            #elif UNITY_EDITOR_LINUX
+            _butler = CreateInstance<ButlerLinux>();
             #endif
             _butler.SetConsoleMessage = SetConsoleContents;
             _butler.AppendConsoleMessage = AppendConsoleMessage;
@@ -247,7 +249,7 @@ namespace ButlerWindow
 
         public bool IsEditorSupported()
         {
-#if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX
+#if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_EDITOR_LINUX
             return true;
 #else
             return false;
